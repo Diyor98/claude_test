@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Flood</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      overflow: hidden;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      transition: background 0.6s ease;
+    }
+
+    #game.danger {
+      background: #2a0e18;
+    }
+
+    /* ── HUD ─────────────────────────────────── */
+    #hud {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 28px;
+      background: rgba(0,0,0,0.45);
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: #a8dadc;
+      z-index: 5;
+    }
+
+    #hud span { color: #fff; font-weight: bold; }
+
+    /* ── Problem Area ────────────────────────── */
+    #problem-area {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 5;
+    }
+
+    #problem-text {
+      font-size: 3.2rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      color: #eee;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+
+    #answer-input {
+      width: 200px;
+      padding: 0.65rem 1rem;
+      font-size: 1.6rem;
+      text-align: center;
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 10px;
+      color: #eee;
+      outline: none;
+      transition: border-color 0.2s;
+      /* Remove number spin buttons */
+      -moz-appearance: textfield;
+    }
+    #answer-input::-webkit-outer-spin-button,
+    #answer-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    #answer-input:focus { border-color: #a8dadc; }
+
+    /* ── Player ──────────────────────────────── */
+    #player {
+      position: absolute;
+      left: 50%;
+      font-size: 2.8rem;
+      line-height: 1;
+      transform: translateX(-50%);
+      z-index: 3;
+      /* bottom is set dynamically via CSS var */
+      bottom: calc(var(--water-height, 12%) + 1%);
+      transition: bottom 0.5s ease;
+      animation: bob 1.6s ease-in-out infinite;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(-10px); }
+    }
+
+    /* ── Water ───────────────────────────────── */
+    #water {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: var(--water-height, 12%);
+      background: linear-gradient(to top, #0a3d62 0%, #1565a7 40%, #2980b9 100%);
+      transition: height 0.5s ease;
+      z-index: 2;
+    }
+
+    #wave {
+      position: absolute;
+      top: -28px;
+      left: 0;
+      width: 200%;
+      height: 32px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 32' preserveAspectRatio='none'%3E%3Cpath d='M0 16 C100 0 200 32 400 16 C600 0 700 32 800 16 L800 32 L0 32 Z' fill='%232980b9'/%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-size: 50% 100%;
+      animation: waveScroll 3s linear infinite;
+    }
+
+    @keyframes waveScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Input feedback ──────────────────────── */
+    @keyframes flashGreen {
+      0%, 100% { border-color: #0f3460; background: #16213e; }
+      40%       { border-color: #a8dadc; background: rgba(168,218,220,0.18); }
+    }
+
+    @keyframes shakeRed {
+      0%, 100% { transform: translateX(0);   border-color: #e94560; }
+      20%       { transform: translateX(-9px); }
+      40%       { transform: translateX(9px);  }
+      60%       { transform: translateX(-5px); }
+      80%       { transform: translateX(5px);  }
+    }
+
+    #answer-input.correct { animation: flashGreen 0.5s ease forwards; }
+    #answer-input.wrong   { animation: shakeRed   0.5s ease forwards; }
+
+    /* ── Game Over flood ─────────────────────── */
+    @keyframes floodFill {
+      from { height: var(--water-height, 30%); }
+      to   { height: 110%; }
+    }
+
+    #game.gameover #water {
+      animation: floodFill 1.5s ease-in forwards;
+      transition: none;
+    }
+
+    /* ── Overlays ────────────────────────────── */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.4rem;
+      background: rgba(26, 26, 46, 0.88);
+      z-index: 10;
+    }
+
+    .overlay h1 {
+      font-size: 3.5rem;
+      color: #e94560;
+      letter-spacing: 5px;
+    }
+
+    .overlay p {
+      font-size: 1.15rem;
+      color: #a8dadc;
+      text-align: center;
+      max-width: 340px;
+      line-height: 1.6;
+    }
+
+    .overlay .stat {
+      font-size: 1.3rem;
+      color: #eee;
+    }
+
+    .overlay .stat span {
+      color: #e94560;
+      font-weight: bold;
+    }
+
+    .overlay button {
+      padding: 0.7rem 2.6rem;
+      font-size: 1.1rem;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .overlay button:hover  { background: #c73652; }
+    .overlay button:active { transform: scale(0.97); }
+
+    .hidden { display: none !important; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    #screen-gameover:not(.hidden) {
+      animation: fadeIn 0.7s ease forwards;
+    }
+
+    /* Difficulty badge */
+    #diff-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+    #diff-badge.easy   { background: #1b5e20; color: #a5d6a7; }
+    #diff-badge.medium { background: #e65100; color: #ffe0b2; }
+    #diff-badge.hard   { background: #b71c1c; color: #ffcdd2; }
+  </style>
+</head>
+<body>
+<div id="game">
+
+  <div id="hud">
+    <div>Score: <span id="val-score">0</span></div>
+    <div>Time: <span id="val-time">0s</span></div>
+    <div>Level: <span id="diff-badge" class="easy">Easy</span></div>
+  </div>
+
+  <div id="problem-area">
+    <div id="problem-text">? + ? = ?</div>
+    <input id="answer-input" type="number" autocomplete="off" placeholder="answer" />
+  </div>
+
+  <div id="player">🧑</div>
+
+  <div id="water">
+    <div id="wave"></div>
+  </div>
+
+  <!-- Start screen -->
+  <div id="screen-start" class="overlay">
+    <h1>MATH FLOOD</h1>
+    <p>Solve math problems to hold back the rising water.<br>Correct answers push it down. Wrong answers speed it up.</p>
+    <button id="btn-play">Play</button>
+  </div>
+
+  <!-- Game over screen -->
+  <div id="screen-gameover" class="overlay hidden">
+    <h1>GAME OVER</h1>
+    <div class="stat">Score: <span id="final-score">0</span></div>
+    <div class="stat">Survived: <span id="final-time">0s</span></div>
+    <button id="btn-replay">Play Again</button>
+  </div>
+
+</div>
+<script>
+  // ── Constants ──────────────────────────────────────────────
+  const WATER_RISE_BASE  = 0.8;
+  const WATER_RISE_MAX   = 3.5;
+  const CORRECT_REWARD   = 5;
+  const WRONG_PENALTY    = 3;
+  const DANGER_THRESHOLD = 18;
+  const WATER_INITIAL    = 12;
+  const WATER_MIN        = 5;
+  const GAMEOVER_LEVEL   = 96;
+
+  // ── State ──────────────────────────────────────────────────
+  let gameState      = 'idle';
+  let waterLevel     = WATER_INITIAL;
+  let score          = 0;
+  let elapsedTime    = 0;
+  let riseRate       = WATER_RISE_BASE;
+  let loopId         = null;
+  let lastTick       = 0;
+  let currentProblem = { text: '', answer: 0 };
+
+  // ── DOM refs ───────────────────────────────────────────────
+  const game         = document.getElementById('game');
+  const playerEl     = document.getElementById('player');
+  const problemText  = document.getElementById('problem-text');
+  const answerInput  = document.getElementById('answer-input');
+  const valScore     = document.getElementById('val-score');
+  const valTime      = document.getElementById('val-time');
+  const diffBadge    = document.getElementById('diff-badge');
+  const screenStart  = document.getElementById('screen-start');
+  const screenGO     = document.getElementById('screen-gameover');
+  const finalScore   = document.getElementById('final-score');
+  const finalTime    = document.getElementById('final-time');
+
+  // ── Utility ────────────────────────────────────────────────
+  function rng(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function setWater(level) {
+    waterLevel = Math.max(WATER_MIN, Math.min(100, level));
+    document.documentElement.style.setProperty('--water-height', waterLevel + '%');
+  }
+
+  function getDifficulty() {
+    if (elapsedTime < 30) return 'easy';
+    if (elapsedTime < 90) return 'medium';
+    return 'hard';
+  }
+
+  // ── Math generation ────────────────────────────────────────
+  function generateProblem() {
+    const diff = getDifficulty();
+
+    if (diff === 'easy') {
+      const a = rng(1, 10), b = rng(1, 10);
+      const plus = Math.random() < 0.5;
+      return plus
+        ? { text: `${a} + ${b} = ?`,  answer: a + b }
+        : { text: `${a} − ${b} = ?`,  answer: a - b };
+    }
+
+    if (diff === 'medium') {
+      const op = rng(0, 3);
+      if (op === 0) {
+        const a = rng(1, 20), b = rng(1, 20);
+        return { text: `${a} + ${b} = ?`, answer: a + b };
+      }
+      if (op === 1) {
+        const a = rng(1, 20), b = rng(1, 20);
+        return { text: `${a} − ${b} = ?`, answer: a - b };
+      }
+      if (op === 2) {
+        const a = rng(1, 12), b = rng(1, 12);
+        return { text: `${a} × ${b} = ?`, answer: a * b };
+      }
+      // division — build from answer
+      const ans = rng(1, 10), divisor = rng(2, 10);
+      return { text: `${ans * divisor} ÷ ${divisor} = ?`, answer: ans };
+    }
+
+    // hard — two-operation patterns
+    const pattern = rng(0, 2);
+
+    if (pattern === 0) {
+      // a + b × c  (respects precedence)
+      const a = rng(1, 20), b = rng(1, 10), c = rng(1, 10);
+      return { text: `${a} + ${b} × ${c} = ?`, answer: a + b * c };
+    }
+    if (pattern === 1) {
+      // (a + b) × c
+      const a = rng(1, 10), b = rng(1, 10), c = rng(2, 10);
+      return { text: `(${a} + ${b}) × ${c} = ?`, answer: (a + b) * c };
+    }
+    // (a + b) ÷ c — guaranteed integer
+    const c   = rng(2, 6);
+    const ans = rng(1, 10);
+    const sum = ans * c;
+    const a   = rng(1, sum - 1);
+    const b   = sum - a;
+    return { text: `(${a} + ${b}) ÷ ${c} = ?`, answer: ans };
+  }
+
+  // ── Game loop ──────────────────────────────────────────────
+  function tick(timestamp) {
+    if (gameState !== 'playing') return;
+
+    const delta = (timestamp - lastTick) / 1000;
+    lastTick = timestamp;
+    elapsedTime += delta;
+
+    riseRate = Math.min(
+      WATER_RISE_BASE + (elapsedTime / 120) * (WATER_RISE_MAX - WATER_RISE_BASE),
+      WATER_RISE_MAX
+    );
+
+    setWater(waterLevel + riseRate * delta);
+
+    // HUD
+    valTime.textContent = Math.floor(elapsedTime) + 's';
+    const diff = getDifficulty();
+    diffBadge.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
+    diffBadge.className = diff;
+
+    // Danger tint
+    const gap = 100 - waterLevel;
+    game.classList.toggle('danger', gap <= DANGER_THRESHOLD);
+
+    if (waterLevel >= GAMEOVER_LEVEL) {
+      triggerGameOver();
+      return;
+    }
+
+    loopId = requestAnimationFrame(tick);
+  }
+
+  // ── State transitions ──────────────────────────────────────
+  function startGame() {
+    gameState   = 'playing';
+    score       = 0;
+    elapsedTime = 0;
+    riseRate    = WATER_RISE_BASE;
+
+    setWater(WATER_INITIAL);
+    valScore.textContent = '0';
+    valTime.textContent  = '0s';
+    diffBadge.textContent = 'Easy';
+    diffBadge.className  = 'easy';
+
+    game.classList.remove('danger', 'gameover');
+    screenStart.classList.add('hidden');
+    screenGO.classList.add('hidden');
+
+    currentProblem = generateProblem();
+    problemText.textContent = currentProblem.text;
+
+    answerInput.value = '';
+    answerInput.focus();
+
+    lastTick = performance.now();
+    loopId = requestAnimationFrame(tick);
+  }
+
+  function triggerGameOver() {
+    gameState = 'gameover';
+    cancelAnimationFrame(loopId);
+    loopId = null;
+
+    game.classList.add('gameover');
+    finalScore.textContent = score;
+    finalTime.textContent  = Math.floor(elapsedTime) + 's';
+
+    setTimeout(() => screenGO.classList.remove('hidden'), 1500);
+  }
+
+  function replayGame() {
+    game.classList.remove('gameover');
+    void game.offsetHeight;  // force reflow to reset CSS animations
+    startGame();
+  }
+
+  // ── Answer handling ────────────────────────────────────────
+  answerInput.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' || gameState !== 'playing') return;
+
+    const userVal = parseInt(answerInput.value, 10);
+    answerInput.value = '';
+
+    if (isNaN(userVal)) return;
+
+    answerInput.classList.remove('correct', 'wrong');
+    // trigger reflow so animation restarts if same class added twice
+    void answerInput.offsetHeight;
+
+    if (userVal === currentProblem.answer) {
+      score++;
+      valScore.textContent = score;
+      setWater(waterLevel - CORRECT_REWARD);
+      answerInput.classList.add('correct');
+    } else {
+      setWater(waterLevel + WRONG_PENALTY);
+      answerInput.classList.add('wrong');
+    }
+
+    answerInput.addEventListener('animationend', () => {
+      answerInput.classList.remove('correct', 'wrong');
+    }, { once: true });
+
+    currentProblem = generateProblem();
+    problemText.textContent = currentProblem.text;
+    answerInput.focus();
+  });
+
+  // ── Button wiring ──────────────────────────────────────────
+  document.getElementById('btn-play').addEventListener('click', startGame);
+  document.getElementById('btn-replay').addEventListener('click', replayGame);
+</script>
+</body>
+</html>
