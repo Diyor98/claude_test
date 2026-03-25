@@ -328,9 +328,10 @@
     if (diff === 'easy') {
       const a = rng(1, 10), b = rng(1, 10);
       const plus = Math.random() < 0.5;
+      const hi = Math.max(a, b), lo = Math.min(a, b);
       return plus
         ? { text: `${a} + ${b} = ?`,  answer: a + b }
-        : { text: `${a} − ${b} = ?`,  answer: a - b };
+        : { text: `${hi} − ${lo} = ?`, answer: hi - lo };
     }
 
     if (diff === 'medium') {
@@ -341,7 +342,8 @@
       }
       if (op === 1) {
         const a = rng(1, 20), b = rng(1, 20);
-        return { text: `${a} − ${b} = ?`, answer: a - b };
+        const hi = Math.max(a, b), lo = Math.min(a, b);
+        return { text: `${hi} − ${lo} = ?`, answer: hi - lo };
       }
       if (op === 2) {
         const a = rng(1, 12), b = rng(1, 12);
@@ -453,19 +455,14 @@
   }
 
   // ── Answer handling ────────────────────────────────────────
-  answerInput.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter' || gameState !== 'playing') return;
-
+  function submitAnswer(isWrong) {
     const userVal = parseInt(answerInput.value, 10);
-    answerInput.value = '';
-
     if (isNaN(userVal)) return;
 
     answerInput.classList.remove('correct', 'wrong');
-    // trigger reflow so animation restarts if same class added twice
     void answerInput.offsetHeight;
 
-    if (userVal === currentProblem.answer) {
+    if (!isWrong && userVal === currentProblem.answer) {
       score++;
       valScore.textContent = score;
       setWater(waterLevel - CORRECT_REWARD);
@@ -479,9 +476,27 @@
       answerInput.classList.remove('correct', 'wrong');
     }, { once: true });
 
+    answerInput.value = '';
     currentProblem = generateProblem();
     problemText.textContent = currentProblem.text;
     answerInput.focus();
+  }
+
+  // Auto-submit when typed value matches the answer
+  answerInput.addEventListener('input', function() {
+    if (gameState !== 'playing') return;
+    const userVal = parseInt(answerInput.value, 10);
+    if (!isNaN(userVal) && userVal === currentProblem.answer) {
+      submitAnswer(false);
+    }
+  });
+
+  // Enter submits wrong answer
+  answerInput.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' || gameState !== 'playing') return;
+    const userVal = parseInt(answerInput.value, 10);
+    if (isNaN(userVal)) return;
+    if (userVal !== currentProblem.answer) submitAnswer(true);
   });
 
   // ── Button wiring ──────────────────────────────────────────
