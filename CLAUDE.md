@@ -14,7 +14,7 @@ open mathflood.html
 
 ## Game: `mathflood.html`
 
-Water rises from the bottom of the screen continuously. The player must solve math problems by typing answers into an input and pressing Enter. Correct answers push the water down; wrong answers make it jump up. Game over when water reaches the player character.
+Water rises from the bottom of the screen continuously. The player must solve math problems by typing answers into an input. Correct answers auto-submit the moment the typed value matches — no Enter needed. Wrong answers must be confirmed with Enter (water penalty applied). Game over when water reaches the player character.
 
 **Difficulty scales with time:**
 | Time | Level | Operations | Numbers |
@@ -23,7 +23,7 @@ Water rises from the bottom of the screen continuously. The player must solve ma
 | 30–90s | Medium | `+`, `−`, `×`, `÷` | 1–20 |
 | 90s+ | Hard | Two-op combos: `a + b×c`, `(a+b)×c`, `(a+b)÷c` | Mixed |
 
-Division always produces integer answers (operands constructed from the answer outward).
+All answers are non-negative. Subtraction problems always place the larger number first. Division always produces integer answers (operands constructed from the answer outward).
 
 **Key constants** (top of `<script>`):
 - `WATER_RISE_BASE / WATER_RISE_MAX` — rise rate ramps from 0.8 to 3.5 %/s over 2 minutes
@@ -33,6 +33,10 @@ Division always produces integer answers (operands constructed from the answer o
 **Water level** is driven by the CSS custom property `--water-height` set on `:root` each `requestAnimationFrame` tick. Both `#water` and `#player` use it via `calc()` with CSS transitions, so the JS only sets one value per frame.
 
 **Game states**: `idle` → `playing` → `gameover` → `playing` (replay). The `void game.offsetHeight` reflow trick resets CSS animations on replay.
+
+## Git Workflow
+
+Commit and push to `origin/main` after every change, no matter how small.
 
 ## Architecture & Conventions
 
