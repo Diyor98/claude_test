@@ -1,248 +1,420 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Portfolio — House Designs</title>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Portfolio — House Designs</title>
+		<style>
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
 
-    body {
-      background-color: #1a1a2e;
-      color: #ccc;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      min-height: 100vh;
-    }
+			body {
+				background-color: #1a1a2e;
+				color: #ccc;
+				font-family: 'Segoe UI', system-ui, sans-serif;
+				min-height: 100vh;
+			}
 
-    /* ── Header ── */
-    header {
-      text-align: center;
-      padding: 60px 24px 48px;
-    }
+			/* ── Header ── */
+			header {
+				text-align: center;
+				padding: 60px 24px 48px;
+			}
 
-    header h1 {
-      font-size: clamp(2.8rem, 8vw, 5.5rem);
-      font-weight: 800;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: #a8dadc;
-      line-height: 1;
-    }
+			header h1 {
+				font-size: clamp(2.8rem, 8vw, 5.5rem);
+				font-weight: 800;
+				letter-spacing: 0.25em;
+				text-transform: uppercase;
+				color: #a8dadc;
+				line-height: 1;
+			}
 
-    header .accent-bar {
-      width: 80px;
-      height: 3px;
-      background: #e94560;
-      margin: 18px auto 16px;
-      border-radius: 2px;
-    }
+			header .accent-bar {
+				width: 80px;
+				height: 3px;
+				background: #e94560;
+				margin: 18px auto 16px;
+				border-radius: 2px;
+			}
 
-    header p {
-      font-size: 1rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #7a8fa6;
-    }
+			header p {
+				font-size: 1rem;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: #7a8fa6;
+			}
 
-    /* ── Masonry Grid ── */
-    .grid {
-      column-count: 3;
-      column-gap: 20px;
-      padding: 0 32px 64px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+			/* ── Masonry Grid ── */
+			.grid {
+				column-count: 3;
+				column-gap: 20px;
+				padding: 0 32px 64px;
+				max-width: 1400px;
+				margin: 0 auto;
+			}
 
-    @media (max-width: 1023px) {
-      .grid { column-count: 2; }
-    }
+			@media (max-width: 1023px) {
+				.grid {
+					column-count: 2;
+				}
+			}
 
-    @media (max-width: 639px) {
-      .grid {
-        column-count: 1;
-        padding: 0 16px 48px;
-      }
-    }
+			@media (max-width: 639px) {
+				.grid {
+					column-count: 1;
+					padding: 0 16px 48px;
+				}
+			}
 
-    /* ── Card ── */
-    .card {
-      break-inside: avoid;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #16213e;
-      border: 1px solid #0f3460;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }
+			/* ── Card ── */
+			.card {
+				break-inside: avoid;
+				margin-bottom: 20px;
+				border-radius: 12px;
+				overflow: hidden;
+				background: #16213e;
+				border: 1px solid #0f3460;
+				position: relative;
+				cursor: pointer;
+				transition:
+					transform 0.3s ease,
+					box-shadow 0.3s ease,
+					border-color 0.3s ease;
+			}
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
-      border-color: #a8dadc;
-    }
+			.card:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+				border-color: #a8dadc;
+			}
 
-    .card img {
-      width: 100%;
-      display: block;
-      transition: transform 0.4s ease;
-    }
+			.card img {
+				width: 100%;
+				display: block;
+				transition: transform 0.4s ease;
+			}
 
-    .card:hover img {
-      transform: scale(1.04);
-    }
+			.card:hover img {
+				transform: scale(1.04);
+			}
 
-    /* ── Hover Overlay ── */
-    .card-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(233, 69, 96, 0.78);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      padding: 20px;
-    }
+			/* ── Hover Overlay ── */
+			.card-overlay {
+				position: absolute;
+				inset: 0;
+				background: rgba(233, 69, 96, 0.78);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+				padding: 20px;
+			}
 
-    .card:hover .card-overlay {
-      opacity: 1;
-    }
+			.card:hover .card-overlay {
+				opacity: 1;
+			}
 
-    .card-overlay .label {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #fff;
-      text-align: center;
-    }
+			.card-overlay .label {
+				font-size: 1.15rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				color: #fff;
+				text-align: center;
+			}
 
-    .card-overlay .tag {
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-  </style>
-</head>
-<body>
+			.card-overlay .tag {
+				font-size: 0.75rem;
+				letter-spacing: 0.1em;
+				text-transform: uppercase;
+				color: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(255, 255, 255, 0.4);
+				padding: 3px 10px;
+				border-radius: 20px;
+			}
+		/* ── Footer ── */
+		footer {
+			background: #16213e;
+			border-top: 1px solid #0f3460;
+			margin-top: 32px;
+		}
 
-  <header>
-    <h1>Portfolio</h1>
-    <div class="accent-bar"></div>
-    <p>House Design Showcase</p>
-  </header>
+		.footer-inner {
+			display: flex;
+			gap: 48px;
+			align-items: stretch;
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 56px 32px;
+		}
 
-  <main class="grid">
+		.footer-text {
+			flex: 1;
+			min-width: 0;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&auto=format&fit=crop" alt="Modern Minimalist House" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Modern Minimalist</span>
-        <span class="tag">Residential</span>
-      </div>
-    </div>
+		.footer-text h2 {
+			font-size: 2rem;
+			font-weight: 800;
+			letter-spacing: 0.2em;
+			text-transform: uppercase;
+			color: #a8dadc;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&auto=format&fit=crop" alt="Contemporary Glass House" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Contemporary Glass</span>
-        <span class="tag">Luxury</span>
-      </div>
-    </div>
+		.footer-text .accent-bar {
+			width: 60px;
+			height: 3px;
+			background: #e94560;
+			margin: 14px 0 20px;
+			border-radius: 2px;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&auto=format&fit=crop" alt="Modern Farmhouse" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Modern Farmhouse</span>
-        <span class="tag">Rural</span>
-      </div>
-    </div>
+		.footer-text > p {
+			color: #7a8fa6;
+			margin-bottom: 24px;
+			font-size: 0.95rem;
+			letter-spacing: 0.03em;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&auto=format&fit=crop" alt="Mid-Century Modern" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Mid-Century Modern</span>
-        <span class="tag">Classic</span>
-      </div>
-    </div>
+		.footer-text ul {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&auto=format&fit=crop" alt="Scandinavian Style" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Scandinavian</span>
-        <span class="tag">Nordic</span>
-      </div>
-    </div>
+		.footer-text ul li {
+			font-size: 0.9rem;
+			color: #ccc;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=600&auto=format&fit=crop" alt="Tudor Style House" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Tudor Revival</span>
-        <span class="tag">Heritage</span>
-      </div>
-    </div>
+		.footer-label {
+			display: inline-block;
+			width: 80px;
+			font-weight: 700;
+			color: #a8dadc;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+			font-size: 0.75rem;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600&auto=format&fit=crop" alt="Japanese Zen House" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Japanese Zen</span>
-        <span class="tag">Minimalist</span>
-      </div>
-    </div>
+		.footer-map {
+			flex: 1;
+			min-height: 260px;
+			border-radius: 12px;
+			overflow: hidden;
+			border: 1px solid #0f3460;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90?w=600&auto=format&fit=crop" alt="Victorian House" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Victorian</span>
-        <span class="tag">Historic</span>
-      </div>
-    </div>
+		.footer-bottom {
+			text-align: center;
+			padding: 18px;
+			border-top: 1px solid #0f3460;
+			font-size: 0.78rem;
+			color: #4a5a6a;
+			letter-spacing: 0.05em;
+		}
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600&auto=format&fit=crop" alt="Mediterranean Villa" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Mediterranean Villa</span>
-        <span class="tag">Coastal</span>
-      </div>
-    </div>
+		@media (max-width: 768px) {
+			.footer-inner {
+				flex-direction: column;
+				gap: 32px;
+			}
+			.footer-map {
+				min-height: 220px;
+			}
+		}
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>Portfolio</h1>
+			<div class="accent-bar"></div>
+			<p>House Design Showcase</p>
+		</header>
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&auto=format&fit=crop" alt="Spanish Colonial" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Spanish Colonial</span>
-        <span class="tag">Traditional</span>
-      </div>
-    </div>
+		<main class="grid">
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&auto=format&fit=crop"
+					alt="Modern Minimalist House"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Modern Minimalist</span>
+					<span class="tag">Residential</span>
+				</div>
+			</div>
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop" alt="Industrial Loft" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Industrial Loft</span>
-        <span class="tag">Urban</span>
-      </div>
-    </div>
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&auto=format&fit=crop"
+					alt="Contemporary Glass House"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Contemporary Glass</span>
+					<span class="tag">Luxury</span>
+				</div>
+			</div>
 
-    <div class="card">
-      <img src="https://images.unsplash.com/photo-1464082354059-27db6ce50048?w=600&auto=format&fit=crop" alt="Brutalist Architecture" loading="lazy" />
-      <div class="card-overlay">
-        <span class="label">Brutalist</span>
-        <span class="tag">Concrete</span>
-      </div>
-    </div>
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&auto=format&fit=crop"
+					alt="Modern Farmhouse"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Modern Farmhouse</span>
+					<span class="tag">Rural</span>
+				</div>
+			</div>
 
-  </main>
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&auto=format&fit=crop"
+					alt="Mid-Century Modern"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Mid-Century Modern</span>
+					<span class="tag">Classic</span>
+				</div>
+			</div>
 
-</body>
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=600&auto=format&fit=crop"
+					alt="Scandinavian Style"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Scandinavian</span>
+					<span class="tag">Nordic</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=600&auto=format&fit=crop"
+					alt="Tudor Style House"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Tudor Revival</span>
+					<span class="tag">Heritage</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600&auto=format&fit=crop"
+					alt="Japanese Zen House"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Japanese Zen</span>
+					<span class="tag">Minimalist</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90?w=600&auto=format&fit=crop"
+					alt="Victorian House"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Victorian</span>
+					<span class="tag">Historic</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600&auto=format&fit=crop"
+					alt="Mediterranean Villa"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Mediterranean Villa</span>
+					<span class="tag">Coastal</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&auto=format&fit=crop"
+					alt="Spanish Colonial"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Spanish Colonial</span>
+					<span class="tag">Traditional</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
+					alt="Industrial Loft"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Industrial Loft</span>
+					<span class="tag">Urban</span>
+				</div>
+			</div>
+
+			<div class="card">
+				<img
+					src="https://images.unsplash.com/photo-1464082354059-27db6ce50048?w=600&auto=format&fit=crop"
+					alt="Brutalist Architecture"
+					loading="lazy"
+				/>
+				<div class="card-overlay">
+					<span class="label">Brutalist</span>
+					<span class="tag">Concrete</span>
+				</div>
+			</div>
+		</main>
+
+		<footer>
+			<div class="footer-inner">
+				<div class="footer-text">
+					<h2>Contact Us</h2>
+					<div class="accent-bar"></div>
+					<p>Interested in a project? We'd love to hear from you.</p>
+					<ul>
+						<li><span class="footer-label">Email</span> hello@housedesigns.com</li>
+						<li><span class="footer-label">Phone</span> +998 90 123 45 67</li>
+						<li><span class="footer-label">Location</span> Tashkent, Uzbekistan</li>
+					</ul>
+				</div>
+				<div class="footer-map">
+					<iframe
+						width="100%"
+						height="100%"
+						frameborder="0"
+						style="border: 0"
+						referrerpolicy="no-referrer-when-downgrade"
+						src="https://www.google.com/maps/embed/v1/place?key=AIzaSyD3izR2Go7lUtTXMmxj0T8TsW2H3R7a96M&q=Tashkent&center=41.2982,69.3424&zoom=10"
+						allowfullscreen
+					></iframe>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				&copy; 2026 House Designs Portfolio. All rights reserved.
+			</div>
+		</footer>
+	</body>
 </html>
